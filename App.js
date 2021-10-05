@@ -21,6 +21,28 @@ import MovieFilterScreen from "./screens/MovieFilterScreen/MovieFilterScreen.mai
   Read the example carefully to set up this app's screen heirarchy in a similar manner.
 
   https://reactnavigation.org/docs/modal */
+
+const RootStack = createStackNavigator();
+
 export default function App() {
-  return <NavigationContainer>{}</NavigationContainer>;
+  return (
+    <NavigationContainer>
+      <RootStack.Navigator>
+        <RootStack.Screen
+          name="MovieListScreen"
+          component={MovieListScreen}
+          initialParams={{ actors: [] }}
+        />
+        <RootStack.Screen
+          name="MovieDetailScreen"
+          component={MovieDetailScreen}
+        />
+        <RootStack.Screen
+          name="MovieFilterScreen"
+          options={{ presentation: "modal", headerBackVisible: false }}
+          component={MovieFilterScreen}
+        />
+      </RootStack.Navigator>
+    </NavigationContainer>
+  );
 }
