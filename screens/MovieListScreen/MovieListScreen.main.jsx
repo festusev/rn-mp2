@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Touchable } from "react-native";
 import { SafeAreaView, FlatList, Button, TouchableOpacity } from "react-native";
 import { SearchBar } from "react-native-elements";
 import { MovieCell } from "./components/MovieCell";
@@ -14,33 +15,40 @@ export default function MovieListScreen({ navigation, route }) {
   const [actors, setActors] = useState([]);
 
   // TODO: Fill out the methods below.
-  const selectedMovie = (movieItem) => {};
+  const selectedMovie = (movieItem) => {
+    navigation.navigate("MovieDetailScreen", movieItem);
+  };
 
-  const selectedFilterButton = () => {};
+  const selectedFilterButton = () => {
+    navigation.navigate("MovieFilterScreen", { actors: actors });
+  };
 
-  useEffect(
-    () => {
-      // TODO: Add a "Filter" button to the right bar button.
-      // It should lead to the MovieFilterScreen, and pass the "actors" state
-      // variable as a parameter.
-    },
-    [
-      /* TODO: Insert dependencies here. */
-    ]
-  );
+  useEffect(() => {
+    // TODO: Add a "Filter" button to the right bar button.
+    // It should lead to the MovieFilterScreen, and pass the "actors" state
+    // variable as a parameter.
+    navigation.setOptions({
+      headerRight: () => (
+        <Button onPress={selectedFilterButton} title="Filter" />
+      ),
+    });
+  }, [
+    /* TODO: Insert dependencies here. */
+    actors,
+  ]);
 
-  useEffect(
-    () => {
-      /* TODO: Recieve the updated list of actors from the filter screen here. 
+  useEffect(() => {
+    /* TODO: Recieve the updated list of actors from the filter screen here. 
           See https://reactnavigation.org/docs/params/#passing-params-to-a-previous-screen
           for an example of how to send data BACKWARDS in the navigation stack.
       */
-    },
-    [
-      /* TODO: Insert dependencies here. What variable changes 
+    console.log(route);
+    setActors(route.params.actors);
+  }, [
+    /* TODO: Insert dependencies here. What variable changes 
         when we come back from the filter screen? */
-    ]
-  );
+    route,
+  ]);
 
   // Renders a row of the FlatList.
   const renderItem = ({ item }) => {
@@ -55,11 +63,22 @@ export default function MovieListScreen({ navigation, route }) {
     };
 
     // TODO: Set up search & filter criteria.
-    let meetsSearchCriteria = true;
-    let meetsActorsCriteria = true;
+    let meetsSearchCriteria = item.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    let meetsActorsCriteria = actors.length == 0 || overlapFound(actors, item.actors);
 
     if (meetsSearchCriteria && meetsActorsCriteria) {
       // TODO: Return a MovieCell, wrapped by a TouchableOpacity so we can handle taps.
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            selectedMovie(item);
+          }}
+        >
+          <MovieCell movieItem={item}></MovieCell>
+        </TouchableOpacity>
+      );
     } else {
       // If the item doesn't meet search/filter criteria, then we can
       // simply return null and it won't be rendered in the list!
@@ -71,9 +90,23 @@ export default function MovieListScreen({ navigation, route }) {
   // a SafeAreaView to support iOS.
   return (
     <SafeAreaView style={styles.container}>
-      {/* TODO: Add a SearchBar: https://reactnativeelements.com/docs/searchbar/.
-                The third-party package should already be installed for you. */}
-      {/* TODO: Add a FlatList: https://reactnative.dev/docs/flatlist */}
+      {
+        /* TODO: Add a SearchBar: https://reactnativeelements.com/docs/searchbar/.
+                The third-party package should already be installed for you. */
+        <SearchBar
+          placeholder="Type Here..."
+          onChangeText={setSearch}
+          value={search}
+        />
+      }
+      {
+        /* TODO: Add a FlatList: https://reactnative.dev/docs/flatlist */
+        <FlatList
+          data={TABLE_DATA}
+          renderItem={renderItem}
+          extraData={search}
+        />
+      }
     </SafeAreaView>
   );
 }
